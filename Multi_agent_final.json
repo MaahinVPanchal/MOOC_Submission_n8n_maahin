@@ -1,0 +1,236 @@
+{
+  "name": "Multi agent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -80,
+        0
+      ],
+      "id": "2fc6791f-30df-4e72-9ef0-98fb20d25090",
+      "name": "When chat message received",
+      "webhookId": "af29eac9-af38-4ee1-aea3-45185fb2b6d7"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "You are an intelligent AI agent that processes user messages and dynamically selects the correct tool for task execution. You are connected to the following tools and must delegate based on user intent:\n\n---\n\n**TOOL INSTRUCTIONS**\n\n1. **Groq Chat Model**  \nUse this model for general conversation, reasoning, summaries, content generation, Q&A, and basic natural language understanding.\n\n2. **Calculator**  \nUse this tool for any kind of arithmetic, algebraic, or mathematical operations such as:  \n- \"What is 23.5% of 220?\"  \n- \"Solve 4x + 5 = 17\"\n\n3. **Google Search (SerpAPI)**  \nUse this tool for real-time information retrieval from the web such as:  \n- \"What’s the weather in Paris?\"  \n- \"Latest news on AI regulation\"\n\n4. **Email**  \nUse this for any task involving writing, sending, or summarizing emails, such as:  \n- \"Send an email to HR about leave request\"  \n- \"Draft a reply to the client saying we’ll reschedule\"\n\n5. **Execute Command (Terminal)**  \nUse this to run system-level terminal commands such as:  \n- \"List all files in current directory\"  \n- \"Check disk usage\"  \nEnsure that any command you execute is safe and necessary.\n\n---\n\n**RULES FOR TOOL SELECTION**\n\n- First, detect intent from the user message.\n- Route the query to the appropriate tool with minimal context loss.\n- Always confirm command execution if it could be destructive.\n- If a task can be performed by multiple tools, prioritize by specificity (e.g., math goes to Calculator, not Groq Chat).\n- If no specific tool applies, fall back to the Groq Chat Model.\n\n---\n\n**FORMAT**\nRespond with clear, concise output. If a tool is used, mention its name in the explanation (e.g., “Using the Calculator tool, the result is…”).\n\n---\n\nStay helpful, secure, and concise.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        360,
+        0
+      ],
+      "id": "879569ca-2911-4204-a9cc-8af6aca52acf",
+      "name": "AI Agent",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        140,
+        220
+      ],
+      "id": "a4774ced-5b5f-4f10-98b1-174e2b40b48b",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "INGKd0yeRZuSL6ce",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryZep",
+      "typeVersion": 1.3,
+      "position": [
+        260,
+        220
+      ],
+      "id": "02278a4b-c1e1-48f4-8b80-6549bad01475",
+      "name": "Zep",
+      "credentials": {
+        "zepApi": {
+          "id": "pTz5m31xSPShZTDm",
+          "name": "Zep Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        380,
+        220
+      ],
+      "id": "a01874c0-f6db-46c0-bb04-ab24089992fc",
+      "name": "Calculator",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        500,
+        220
+      ],
+      "id": "00877d41-3de3-4fed-9a6a-719899d4f3a8",
+      "name": "Google Search",
+      "credentials": {
+        "serpApi": {
+          "id": "waUOWj4pcYVq0M6e",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Use this tool for email based notification sender",
+        "workflowId": {
+          "__rl": true,
+          "value": "RJ5oEhKcFN853d1D",
+          "mode": "list",
+          "cachedResultName": "email agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        620,
+        220
+      ],
+      "id": "40d24102-1a86-4238-ac55-c9dc71b2d1af",
+      "name": "Email"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Executes a command based on user query",
+        "command": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Command', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.executeCommandTool",
+      "typeVersion": 1,
+      "position": [
+        740,
+        220
+      ],
+      "id": "e7981b6f-babb-489a-8c67-043485b2da05",
+      "name": "Execute Command"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zep": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Search": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Command": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "477cd69a-c308-4429-af03-c6bd19fbd793",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ea2aae1f5e1e311b5737a8a76494e01258f3253240f37ce3f4c7a0034b841e28"
+  },
+  "id": "4BY1u1JLwGLnXtai",
+  "tags": []
+}

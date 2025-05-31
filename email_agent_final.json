@@ -1,0 +1,131 @@
+{
+  "name": "email agent",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -280,
+        0
+      ],
+      "id": "6684f77f-61d9-462e-9110-ed9e21e04961",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.content }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -60,
+        0
+      ],
+      "id": "e9a35c31-acff-4cea-9276-dbb1d36e2535",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        88,
+        220
+      ],
+      "id": "63c0cf86-9631-4c0a-8c3c-27a87c5b5c29",
+      "name": "Gmail1",
+      "webhookId": "4f2b7650-30a4-4da5-9ffe-a854290270ff",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "FUbX81Ub5tssf0i6",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -120,
+        180
+      ],
+      "id": "7ad84968-4733-4c60-b061-7ad86eb4d21e",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "INGKd0yeRZuSL6ce",
+          "name": "Groq account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "content": "send an email to maahinpanchal@gmail.com."
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "860c9275-a943-4f56-9689-50ad1846cf97",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ea2aae1f5e1e311b5737a8a76494e01258f3253240f37ce3f4c7a0034b841e28"
+  },
+  "id": "RJ5oEhKcFN853d1D",
+  "tags": []
+}
